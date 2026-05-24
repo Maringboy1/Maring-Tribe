@@ -1,7 +1,8 @@
 // Paste your Google AI Studio API key here (Starts with AIza...)
 const API_KEY = "AIzaSyAYFNCA0eN8-G5EKPm-jOu2bClVSLBRSMQ";
-// Updated to Google's official OpenAI-compatible endpoint
-const API_URL = "https://herokuapp.com";
+
+// FIXED: Native Google endpoint allows CORS requests straight from the browser
+const API_URL = `https://googleapis.com{API_KEY}`;
 
 let conversationHistory = [];
 let hasGreeted = false; 
@@ -77,12 +78,16 @@ async function sendMessage() {
     document.getElementById("user-input").value = "";
     chatBox.scrollTop = chatBox.scrollHeight;
 
-    conversationHistory.push({ role: "user", content: userInput });
+    // FIXED: Format updated to match Google's native 'parts' structure
+    conversationHistory.push({ role: "user", parts: [{ text: userInput }] });
 
     // Check if user asked about the developer
     const lowerCaseInput = userInput.toLowerCase();
     if (lowerCaseInput.includes("who is the developer") || lowerCaseInput.includes("developer,chatbot")) {
-        displayBotResponse("Moshilning Koninga is the developer of this chatbot. He lives in the North East state of Manipur,India belongs to Maring tribe (Naga Community)");
+        let localResponse = "Moshilning Koninga is the developer of this chatbot. He lives in the North East state of Manipur,India belongs to Maring tribe (Naga Community)";
+        displayBotResponse(localResponse);
+        // Save local response to history using Google's role syntax
+        conversationHistory.push({ role: "model", parts: [{ text: localResponse }] });
         return;
     }
 
@@ -92,25 +97,27 @@ async function sendMessage() {
         let response = await fetch(API_URL, {
             method: "POST",
             headers: {
-                "Authorization": `Bearer ${API_KEY}`,
                 "Content-Type": "application/json"
             },
-            // Updated model name to match Google's infrastructure requirements
-            body: JSON.stringify({ model: "gemini-2.5-flash", messages: conversationHistory })
+            // FIXED: Google's native API takes 'contents' instead of 'messages'
+            body: JSON.stringify({ contents: conversationHistory })
         });
 
         let data = await response.json();
-        let botText = data.choices[0].message.content;
+        
+        // FIXED: Safely parsing the text response from Google's response payload
+        let botText = data.candidates[0].content.parts[0].text;
 
         hideLoading();
         displayBotResponse(botText);
 
-        // Add to conversation history
-        conversationHistory.push({ role: "assistant", content: botText });
+        // FIXED: Google uses the role name 'model' instead of 'assistant'
+        conversationHistory.push({ role: "model", parts: [{ text: botText }] });
 
     } catch (error) {
         hideLoading();
         displayBotResponse("Sorry, connection failed.");
+        console.error(error);
     }
 }
 
