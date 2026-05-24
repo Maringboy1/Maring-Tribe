@@ -1,7 +1,7 @@
 // Paste your Google AI Studio API key here (Starts with AIza...)
 const API_KEY = "AIzaSyAYFNCA0eN8-G5EKPm-jOu2bClVSLBRSMQ";
 // Updated to Google's official OpenAI-compatible endpoint
-const API_URL = "https://googleapis.com";
+const API_URL = "https://herokuapp.com";
 
 let conversationHistory = [];
 let hasGreeted = false; 
