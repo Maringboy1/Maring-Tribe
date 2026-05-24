@@ -1,5 +1,7 @@
-const API_KEY = "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";
-const API_URL = "https://openrouter.ai/api/v1/chat/completions";
+// Paste your Google AI Studio API key here (Starts with AIza...)
+const API_KEY = "AIzaSyAYFNCA0eN8-G5EKPm-jOu2bClVSLBRSMQ";
+// Updated to Google's official OpenAI-compatible endpoint
+const API_URL = "https://googleapis.com";
 
 let conversationHistory = [];
 let hasGreeted = false; 
@@ -59,6 +61,7 @@ function showLoading() {
     chatBox.scrollTop = chatBox.scrollHeight;
 }
 
+// Hide loading animation
 function hideLoading() {
     let loading = document.getElementById("loading-message");
     if (loading) loading.remove();
@@ -92,7 +95,8 @@ async function sendMessage() {
                 "Authorization": `Bearer ${API_KEY}`,
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({ model: "deepseek/deepseek-chat", messages: conversationHistory })
+            // Updated model name to match Google's infrastructure requirements
+            body: JSON.stringify({ model: "gemini-2.5-flash", messages: conversationHistory })
         });
 
         let data = await response.json();
